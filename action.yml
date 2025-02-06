@@ -1,0 +1,166 @@
+name: MirrorChyan Uploading
+description: MirrorChyan Uploading
+author: MirrorChyan
+
+branding:
+  icon: arrow-up
+  color: black
+
+inputs:
+  filetype:
+    description: local, latest-release
+    required: true
+  filename:
+    required: true
+
+  # for local file
+  version_name:
+    required: false
+
+  # for download release
+  github_token:
+    required: false
+  owner:
+    required: false
+  repo:
+    required: false
+
+  # for uploading
+  mirrorchyan_rid:
+    required: true
+  upload_token:
+    required: true
+  os:
+    required: false
+  arch:
+    required: false
+  auto_channel:
+    required: false
+    default: "true"
+  channel:
+    required: false
+
+outputs:
+  error:
+    value: ${{ steps.upload.outputs.error }}
+  msg:
+    value: ${{ steps.upload.outputs.msg }}
+  version_id:
+    value: ${{ steps.upload.outputs.version_id }}
+  version_number:
+    value: ${{ steps.upload.outputs.version_number }}
+  version_name:
+    value: ${{ steps.upload.outputs.version_name }}
+  response:
+    value: ${{ steps.upload.outputs.response }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: latest-release
+      if: ${{ inputs.filetype == 'latest-release' }}
+      uses: pozetroninc/github-action-get-latest-release@master
+      with:
+        owner: ${{ inputs.owner }}
+        repo: ${{ inputs.repo }}
+        token: ${{ inputs.github_token }}
+
+    - id: download-release
+      if: ${{ inputs.filetype == 'latest-release' }}
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: ${{ inputs.owner }}/${{ inputs.repo }}
+        fileName: ${{ inputs.filename }}
+        tag: ${{ steps.latest-release.outputs.release }}
+        out-file-path: "downloads"
+        extract: false
+
+    - name: Organize information
+      id: information
+      shell: bash
+      run: |
+        if [[ "${{ inputs.filetype }}" == "latest-release" ]]; then
+          version_name='${{ steps.latest-release.outputs.release }}'
+          downloaded_files='${{ steps.download-release.outputs.downloaded_files }}'
+          filename=$(echo $downloaded_files | jq -r '.[0]')
+        elif [[ "${{ inputs.filetype }}" == "local" ]]; then
+          version_name="${{ inputs.version_name }}"
+          filename="${{ inputs.filename }}"
+        else
+          echo "Unknown filetype: ""${{ inputs.filetype }}"
+          exit 1
+        fi
+
+        if [[ ${{ inputs.auto_channel }} != false ]]; then
+          if [[ "$version_name" == *"alpha"* ]]; then
+            channel="alpha"
+          elif [[ "$version_name" == *"beta"* ]]; then
+            channel="beta"
+          elif [[ "$version_name" == *"rc"* ]]; then
+            channel="beta"
+          else
+            channel="stable"
+          fi
+        else
+          channel="${{ inputs.channel }}"
+        fi
+
+        artifact="MirrorChyan-${{ inputs.mirrorchyan_rid }}-$version_name-${{ inputs.os }}-${{ inputs.arch }}-$channel"
+        artifact="${artifact//:/_}"
+        artifact="${artifact// /+}"
+
+        echo "version_name=$version_name" | tee -a "$GITHUB_OUTPUT"
+        echo "filename=$filename" | tee -a "$GITHUB_OUTPUT"
+        echo "channel=$channel" | tee -a "$GITHUB_OUTPUT"
+        echo "artifact=$artifact" | tee -a "$GITHUB_OUTPUT"
+
+    - name: Upload to MirrorChyan
+      id: upload
+      shell: bash
+      run: |
+        response=$(curl --location --request POST 'https://mirrorc.top/api/resources/${{ inputs.mirrorchyan_rid }}/versions' \
+          --header 'Authorization:${{ inputs.upload_token }}' \
+          --form 'os="${{ inputs.os }}"' \
+          --form 'arch="${{ inputs.arch }}"' \
+          --form 'channel="${{ steps.information.outputs.channel }}"' \
+          --form 'name="${{ steps.information.outputs.version_name }}"' \
+          --form 'file=@"${{ steps.information.outputs.filename }}"')
+
+        error=$(echo "$response" | jq .code)
+        msg=$(echo "$response" | jq .msg)
+        version_id=$(echo "$response" | jq .data.id)
+        version_name=$(echo "$response" | jq .data.name)
+        version_number=$(echo "$response" | jq .data.number)
+
+        echo "response=$response" | tee -a "$GITHUB_OUTPUT"
+        echo "error=$error" | tee -a "$GITHUB_OUTPUT"
+        echo "msg=$msg" | tee -a "$GITHUB_OUTPUT"
+        echo "version_id=$version_id" | tee -a "$GITHUB_OUTPUT"
+        echo "version_name=$version_name" | tee -a "$GITHUB_OUTPUT"
+        echo "version_number=$version_number" | tee -a "$GITHUB_OUTPUT"
+
+        if [[ $error != 0 ]]; then
+          echo "Bad Response!"
+          exit 1
+        fi
+
+    - name: Create issue if failed
+      if: failure()
+      uses: actions-cool/issues-helper@v3
+      with:
+        actions: "create-issue"
+        title: "Failed to upload to MirrorChyan for ${{ github.repository }}"
+        body: |
+          ```json
+          ${{ steps.upload.outputs.response }}
+          ```
+
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          @MistEO @Aliothmoon @dongwlin
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ${{ steps.information.outputs.artifact }}
+        path: ${{ steps.information.outputs.filename }}
