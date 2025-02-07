@@ -19,6 +19,9 @@ jobs:
         run: |
           version=$(date --utc +%Y%m%d%H%M%S)
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+          
+          cd MaaAssistantArknights/api
+          echo $version | jq -c '{timestamp:.}' | tee lastUpdateTime.json
 
       - uses: MirrorChyan/uploading-action@v1
         with:

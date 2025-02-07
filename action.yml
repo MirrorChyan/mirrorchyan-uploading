@@ -123,9 +123,13 @@ runs:
           if [[ "${{ inputs.pick_files }}" == "" ]]; then
             filename="${{ inputs.filename }}"
           else
-            cd ${{ inputs.working-directory }}
+            if [[ "${{ inputs.working-directory }}" != "" ]]; then
+              cd ${{ inputs.working-directory }}
+            fi
             zip -r mirrorchyan.zip "${pick_files[@]}" -x "${exclude_files[@]}" .__Non-existent-placeholder__
-            cd -
+            if [[ "${{ inputs.working-directory }}" != "" ]]; then
+              cd -
+            fi
             filename="${{ inputs.working-directory }}mirrorchyan.zip"
           fi
         else
