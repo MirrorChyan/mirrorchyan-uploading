@@ -18,6 +18,8 @@ inputs:
     required: false
   exclude_files:
     required: false
+  working-directory:
+    required: false
 
   # for local file
   version_name:
@@ -111,18 +113,20 @@ runs:
             downloaded_files='${{ steps.download-release.outputs.downloaded_files }}'
             filename=$(echo $downloaded_files | jq -r '.[0]')
           else
-            cd downloads
+            cd downloads/${{ inputs.working-directory }}
             zip -r mirrorchyan.zip "${pick_files[@]}" -x "${exclude_files[@]}" .__Non-existent-placeholder__
-            cd ..
-            filename="downloads/mirrorchyan.zip"
+            cd -
+            filename="downloads/${{ inputs.working-directory }}mirrorchyan.zip"
           fi
         elif [[ "${{ inputs.filetype }}" == "local" ]]; then
           version_name="${{ inputs.version_name }}"
           if [[ "${{ inputs.pick_files }}" == "" ]]; then
             filename="${{ inputs.filename }}"
           else
+            cd ${{ inputs.working-directory }}
             zip -r mirrorchyan.zip "${pick_files[@]}" -x "${exclude_files[@]}" .__Non-existent-placeholder__
-            filename="mirrorchyan.zip"
+            cd -
+            filename="${{ inputs.working-directory }}mirrorchyan.zip"
           fi
         else
           echo "Unknown filetype: ""${{ inputs.filetype }}"
