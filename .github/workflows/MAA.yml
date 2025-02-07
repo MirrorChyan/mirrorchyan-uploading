@@ -25,9 +25,9 @@ jobs:
           filename: "*MAA-*-${{ matrix.os }}-${{ matrix.arch }}.zip"
           mirrorchyan_rid: MAA
 
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           owner: MaaAssistantArknights
           repo: MaaAssistantArknights
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           os: ${{ matrix.os }}
           arch: ${{ matrix.arch }}

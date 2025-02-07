@@ -23,8 +23,10 @@ jobs:
       - uses: MirrorChyan/uploading-action@v1
         with:
           fake_upload: true
+
           filetype: local
           mirrorchyan_rid: MaaResource
-          pick_files: '["resource"]'
           version_name: ${{ steps.version_name.outputs.version }}
+          pick_files: '["resource"]'
+
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
