@@ -1,0 +1,33 @@
+name: MAA
+
+on:
+  push:
+    paths:
+      - "action.yml"
+      - ".github/workflows/MAA.yml"
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [win]
+        arch: [arm64, x64]
+
+    steps:
+      - id: uploading
+        uses: MirrorChyan/uploading-action@v1
+        with:
+          fake_upload: true
+
+          filetype: latest-release
+          filename: "*MAA-*-${{ matrix.os }}-${{ matrix.arch }}.zip"
+          mirrorchyan_rid: MAA
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          owner: MaaAssistantArknights
+          repo: MaaAssistantArknights
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
+          os: ${{ matrix.os }}
+          arch: ${{ matrix.arch }}

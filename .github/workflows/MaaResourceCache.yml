@@ -1,0 +1,30 @@
+name: MaaResourceCache
+
+on:
+  push:
+    paths:
+      - "action.yml"
+      - ".github/workflows/MaaResourceCache.yml"
+
+jobs:
+  mirrorchyan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: MaaAssistantArknights/MaaRelease
+
+      - name: Version Name
+        id: version_name
+        run: |
+          version=$(date --utc +%Y%m%d%H%M%S)
+          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          fake_upload: true
+          filetype: local
+          mirrorchyan_rid: MaaResourceCache
+          pick_files: '["MaaAssistantArknights/api/gui", "MaaAssistantArknights/api/resource", "MaaAssistantArknights/api/lastUpdateTime.json"]'
+          version_name: ${{ steps.version_name.outputs.version }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}

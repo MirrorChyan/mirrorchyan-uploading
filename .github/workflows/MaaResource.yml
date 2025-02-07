@@ -1,0 +1,30 @@
+name: MaaResource
+
+on:
+  push:
+    paths:
+      - "action.yml"
+      - ".github/workflows/MaaResource.yml"
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: MaaAssistantArknights/MaaResource
+
+      - name: Version Name
+        id: version_name
+        run: |
+          version=$(cat resource/version.json | jq -r .last_updated)
+          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          fake_upload: true
+          filetype: local
+          mirrorchyan_rid: MaaResource
+          pick_files: '["resource"]'
+          version_name: ${{ steps.version_name.outputs.version }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
