@@ -1,0 +1,28 @@
+name: MAA_Punish
+
+on:
+  push:
+    paths:
+      - "action.yml"
+      - ".github/workflows/MAA_SnowBreak.yml"
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    steps:
+      - id: uploading
+        uses: MirrorChyan/uploading-action@v1
+        with:
+          fake_upload: true
+          
+          filetype: latest-release
+          filename: "MSBA-win-x86_64-MFW*.zip"
+          working-directory: bundles/MSBA/
+          pick_files: '["resource", "interface.json"]'
+          exclude_files: '["*model/ocr/**"]'
+          mirrorchyan_rid: MAA_SnowBreak
+
+          owner: overflow65537
+          repo: MAA_SnowBreak
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
