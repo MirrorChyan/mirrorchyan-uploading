@@ -32,6 +32,9 @@ inputs:
     required: false
   repo:
     required: false
+  wait_time:
+    required: false
+    default: 120
 
   # for uploading
   mirrorchyan_rid:
@@ -74,8 +77,8 @@ runs:
       if: ${{ inputs.filetype == 'latest-release' }}
       shell: bash
       run: |
-        echo "Sleep 120s for release artifact to be ready"
-        sleep 120
+        echo "Sleep ${{ inputs.wait_time }}s for release artifact to be ready"
+        sleep ${{ inputs.wait_time }}
 
     - id: latest-release
       if: ${{ inputs.filetype == 'latest-release' }}
