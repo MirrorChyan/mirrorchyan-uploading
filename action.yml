@@ -32,9 +32,6 @@ inputs:
     required: false
   repo:
     required: false
-  wait_time:
-    required: false
-    default: 120
 
   # for uploading
   mirrorchyan_rid:
@@ -73,13 +70,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Sleep
-      if: ${{ inputs.filetype == 'latest-release' }}
-      shell: bash
-      run: |
-        echo "Sleep ${{ inputs.wait_time }}s for release artifact to be ready"
-        sleep ${{ inputs.wait_time }}
-
     - id: latest-release
       if: ${{ inputs.filetype == 'latest-release' }}
       uses: pozetroninc/github-action-get-latest-release@master
