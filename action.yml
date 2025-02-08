@@ -94,6 +94,7 @@ runs:
         tag: ${{ steps.latest-release.outputs.release }}
         out-file-path: "downloads"
         extract: ${{ inputs.pick_files != '' }}
+        token: ${{ inputs.github_token }}
 
     - name: Organize information
       id: information
