@@ -138,7 +138,7 @@ runs:
               cd ${{ inputs.working-directory }}
             fi
             zip -r mirrorchyan.zip "${pick_files[@]}" -x "${exclude_files[@]}" .__Non-existent-placeholder__
-            filename="$unzip_dir${{ inputs.working-directory }}mirrorchyan.zip"
+            filename=$unzip_dir"${{ inputs.working-directory }}mirrorchyan.zip"
           fi
         else
           echo "Unknown filetype: ""${{ inputs.filetype }}"
