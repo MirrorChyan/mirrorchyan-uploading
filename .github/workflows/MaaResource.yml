@@ -20,7 +20,7 @@ jobs:
           version=$(cat resource/version.json | jq -r .last_updated)
           echo "version=$version" | tee -a "$GITHUB_OUTPUT"
 
-      - uses: MirrorChyan/uploading-action@v1
+      - uses: MirrorChyan/uploading-action@dev
         with:
           fake_upload: true
 

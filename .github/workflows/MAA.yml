@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - id: uploading
-        uses: MirrorChyan/uploading-action@v1
+        uses: MirrorChyan/uploading-action@dev
         with:
           fake_upload: true
 

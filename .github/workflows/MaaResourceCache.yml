@@ -23,7 +23,7 @@ jobs:
           cd MaaAssistantArknights/api
           echo $version | jq -c '{timestamp:.}' | tee lastUpdateTime.json
 
-      - uses: MirrorChyan/uploading-action@v1
+      - uses: MirrorChyan/uploading-action@dev
         with:
           fake_upload: true
           filetype: local
