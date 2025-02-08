@@ -130,7 +130,7 @@ runs:
             filename="${{ inputs.filename }}"
           else
             if [[ "${{ inputs.filename }}" != "" ]]; then
-              unzip_dir="MirrorChyanUnzip"
+              unzip_dir="MirrorChyanUnzip/"
               unzip -d $unzip_dir "${{ inputs.filename }}"
               cd $unzip_dir
             fi
