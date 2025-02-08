@@ -70,6 +70,12 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Sleep for release artifact to be ready
+      if: ${{ inputs.filetype == 'latest-release' }}
+      uses: jakejarvis/wait-action@master
+      with:
+        time: "30s"
+
     - id: latest-release
       if: ${{ inputs.filetype == 'latest-release' }}
       uses: pozetroninc/github-action-get-latest-release@master
