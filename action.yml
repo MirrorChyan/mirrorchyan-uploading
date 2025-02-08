@@ -70,11 +70,12 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Sleep for release artifact to be ready
+    - name: Sleep
       if: ${{ inputs.filetype == 'latest-release' }}
-      uses: jakejarvis/wait-action@master
-      with:
-        time: "30s"
+      shell: bash
+      run: |
+        echo "Sleep 30s for release artifact to be ready"
+        sleep 30
 
     - id: latest-release
       if: ${{ inputs.filetype == 'latest-release' }}
